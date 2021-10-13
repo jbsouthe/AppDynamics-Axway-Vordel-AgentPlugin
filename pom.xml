@@ -1,0 +1,99 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.cisco.josouthe</groupId>
+    <artifactId>VordelAgentPlugin</artifactId>
+    <version>1.0</version>
+    <!-- <packaging>jar</packaging>  -->
+
+    <dependencies>
+        <dependency>
+            <groupId>com.appdynamics.agent</groupId>
+            <artifactId>agent-api</artifactId>
+            <version>20.6.0.30246</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.grpc/grpc-stub -->
+        <!--
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-all</artifactId>
+            <version>1.31.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>1.31.0</version>
+        </dependency>
+        -->
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>agent-api</groupId>
+                                    <artifactId>agent-api</artifactId>
+                                    <version>1.0</version>
+                                    <type>jar</type>
+                                    <includes>com/appdynamics/agent/api/AppdynamicsAgent.class</includes>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <includes>
+                        <include>**/*.class</include>
+                        <include>../com/appdynamics/agent/api/AppdynamicsAgent.class</include>
+                    </includes>
+                    <outputDirectory>${basedir}</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- TODO if we can figure out how to list classes in a directory
+    <archive>
+        <manifestSections>
+          <manifestSection>
+              <name>Plugin-Classes</name>
+              <manifestEntries>
+              </manifestEntries>
+          </manifestSection>
+        </manifestSections>
+    </archive>
+    -->
+</project>
