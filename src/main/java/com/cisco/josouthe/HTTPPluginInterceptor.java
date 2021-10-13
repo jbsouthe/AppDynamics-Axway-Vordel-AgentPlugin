@@ -52,7 +52,7 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
 
     private String getCorrelationID( Object serverTransaction ) {
         Object headerset = getReflectiveObject(serverTransaction, getHeaders);
-        return getReflectiveString(headerset, getHeader, String.valueOf(CORRELATION_HEADER_KEY));
+        return (String) getReflectiveObject(headerset, getHeader, String.valueOf(CORRELATION_HEADER_KEY));
     }
 
     @Override
