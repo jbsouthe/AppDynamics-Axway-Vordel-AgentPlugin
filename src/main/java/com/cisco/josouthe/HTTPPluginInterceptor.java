@@ -15,12 +15,14 @@ import java.util.List;
 
 public class HTTPPluginInterceptor extends MyBaseInterceptor{
 
-    IReflector getURI, getHeaders; //ServerTransaction
+    IReflector getRequestURI, getHeaders, getMethod, getSNI; //ServerTransaction
     IReflector getHeader; //HeaderSet ala Google
 
     public HTTPPluginInterceptor() {
         super();
-        getURI = makeInvokeInstanceMethodReflector("getURI"); //returns a URI
+        getRequestURI = makeInvokeInstanceMethodReflector("getRequestURI"); //returns a String
+        getMethod = makeInvokeInstanceMethodReflector("getMethod"); //returns String
+        getSNI = makeInvokeInstanceMethodReflector("getSNI"); // returns String
         getHeaders = makeInvokeInstanceMethodReflector("getHeaders"); //returns a com.vordel.mime.HeaderSet
         getHeader = makeInvokeInstanceMethodReflector("getHeader", String.class.getCanonicalName()); //returns a String
 
@@ -30,7 +32,7 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
     public Object onMethodBegin(Object objectIntercepted, String className, String methodName, Object[] params) {
         Object serverTransaction = params[2];
         Object correlationId = params[3];
-        ServletContext servletContext = buildServletContext(serverTransaction);
+        //ServletContext servletContext = buildServletContext(serverTransaction);
         Transaction transaction = AppdynamicsAgent.getTransaction();
         if( isFakeTransaction(transaction) ) {
             transaction = AppdynamicsAgent.startServletTransaction(buildServletContext(serverTransaction), EntryTypes.HTTP, getCorrelationID(serverTransaction), false);
@@ -40,13 +42,21 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
     }
 
     private ServletContext buildServletContext(Object serverTransaction) {
+        getLogger().debug("entering buildServletContext");
         ServletContext.ServletContextBuilder builder = new ServletContext.ServletContextBuilder();
         try {
-            builder.withURL( ((URI)getReflectiveObject(serverTransaction, getURI)).toURL() );
+            getLogger().info("buildServletContext what is an SNI? "+ getReflectiveString(serverTransaction, getSNI, "I DO NOT KNOW"));
+            String requestURI = (String)getReflectiveObject(serverTransaction, getRequestURI);
+            Object headerset = getReflectiveObject(serverTransaction, getHeaders);
+            String hostname = (String) getReflectiveObject(headerset, getHeader, "Host");
+            String url = String.format("https://%s%s", hostname, requestURI);
+            getLogger().info(String.format("buildServletContext Built Request URL: '%s'", url));
+            builder.withURL( url );
         } catch (MalformedURLException e) {
-            getLogger().info("Bad URL, can't start a servlet! Exception: "+ e.getMessage());
+            getLogger().info("buildServletContext Bad URL, can't start a servlet! Exception: "+ e.getMessage());
         }
-
+        builder.withRequestMethod( getReflectiveString(serverTransaction,getMethod, "UNKNOWN-METHOD"));
+        getLogger().debug("leaving buildServletContext");
         return builder.build();
     }
 
