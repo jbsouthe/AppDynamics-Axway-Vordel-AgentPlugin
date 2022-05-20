@@ -3,7 +3,7 @@
 
     <groupId>com.cisco.josouthe</groupId>
     <artifactId>VordelAgentPlugin</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <!-- <packaging>jar</packaging>  -->
 
     <dependencies>
@@ -74,7 +74,7 @@
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                         <manifestEntries>
-                            <Plugin-Classes>com.cisco.josouthe.HTTPPluginInterceptor</Plugin-Classes>
+                            <Plugin-Classes>com.cisco.josouthe.HTTPPluginInterceptor,com.cisco.josouthe.ConnectionProcessorInterceptor</Plugin-Classes>
                         </manifestEntries>
                     </archive>
                     <outputDirectory>${basedir}</outputDirectory>
