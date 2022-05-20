@@ -45,12 +45,12 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
         getLogger().debug("entering buildServletContext");
         ServletContext.ServletContextBuilder builder = new ServletContext.ServletContextBuilder();
         try {
-            getLogger().info("buildServletContext what is an SNI? "+ getReflectiveString(serverTransaction, getSNI, "I DO NOT KNOW"));
+            //getLogger().info("buildServletContext what is an SNI? "+ getReflectiveString(serverTransaction, getSNI, "I DO NOT KNOW"));
             String requestURI = (String)getReflectiveObject(serverTransaction, getRequestURI);
             Object headerset = getReflectiveObject(serverTransaction, getHeaders);
             String hostname = (String) getReflectiveObject(headerset, getHeader, "Host");
             String url = String.format("https://%s%s", hostname, requestURI);
-            getLogger().info(String.format("buildServletContext Built Request URL: '%s'", url));
+            getLogger().debug(String.format("buildServletContext Built Request URL: '%s'", url));
             builder.withURL( url );
         } catch (MalformedURLException e) {
             getLogger().info("buildServletContext Bad URL, can't start a servlet! Exception: "+ e.getMessage());
@@ -62,7 +62,9 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
 
     private String getCorrelationID( Object serverTransaction ) {
         Object headerset = getReflectiveObject(serverTransaction, getHeaders);
-        return (String) getReflectiveObject(headerset, getHeader, String.valueOf(CORRELATION_HEADER_KEY));
+        String singularityHeader = (String) getReflectiveObject(headerset, getHeader, String.valueOf(CORRELATION_HEADER_KEY));
+        getLogger().debug(String.format("Singularity Header from incoming request: '%s'", singularityHeader));
+        return singularityHeader;
     }
 
     @Override
