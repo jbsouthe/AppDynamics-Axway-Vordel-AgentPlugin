@@ -5,6 +5,7 @@ import com.appdynamics.agent.api.ExitCall;
 import com.appdynamics.agent.api.Transaction;
 import com.appdynamics.instrumentation.sdk.Rule;
 import com.appdynamics.instrumentation.sdk.SDKClassMatchType;
+import com.appdynamics.instrumentation.sdk.SDKStringMatchType;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.IReflector;
 import com.appdynamics.instrumentation.sdk.toolbox.reflection.ReflectorException;
 
@@ -87,6 +88,9 @@ public class ConnectionProcessorInterceptor extends MyBaseInterceptor{
                 "com.vordel.circuit.net.ConnectionProcessor")
                 .classMatchType(SDKClassMatchType.MATCHES_CLASS)
                 .methodMatchString("invoke")
+                .methodStringMatchType(SDKStringMatchType.EQUALS)
+                //protected boolean invoke(Circuit c, Message m, HeaderSet headers, String verb, Body body) throws CircuitAbortException {
+                .withParams("com.vordel.config.Circuit", "com.vordel.circuit.Message", "com.vordel.mime.HeaderSet", "java.lang.String", "com.vordel.mime.Body")
                 .build()
         );
         return rules;
