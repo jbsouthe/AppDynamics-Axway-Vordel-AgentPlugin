@@ -3,7 +3,7 @@
 
     <groupId>com.cisco.josouthe</groupId>
     <artifactId>VordelAgentPlugin</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <!-- <packaging>jar</packaging>  -->
 
     <dependencies>

@@ -10,13 +10,13 @@ import com.appdynamics.instrumentation.sdk.toolbox.reflection.IReflector;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class HTTPPluginInterceptor extends MyBaseInterceptor{
 
     IReflector getRequestURI, getHeaders, getMethod, getSNI; //ServerTransaction
-    IReflector getHeader; //HeaderSet ala Google
+    IReflector getHeader, keySet; //HeaderSet ala Google
+    IReflector toString;
 
     public HTTPPluginInterceptor() {
         super();
@@ -25,8 +25,10 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
         getSNI = makeInvokeInstanceMethodReflector("getSNI"); // returns String
         getHeaders = makeInvokeInstanceMethodReflector("getHeaders"); //returns a com.vordel.mime.HeaderSet
         getHeader = makeInvokeInstanceMethodReflector("getHeader", String.class.getCanonicalName()); //returns a String
-
+        keySet = makeInvokeInstanceMethodReflector("keySet"); //returns Set<K>
+        toString = makeInvokeInstanceMethodReflector("toString");
     }
+
     //public void invoke(HTTPProtocol protocol, HTTPProtocol handler, ServerTransaction txn, CorrelationID id, Map<String, Object> loopbackMessage) throws IOException {
     @Override
     public Object onMethodBegin(Object objectIntercepted, String className, String methodName, Object[] params) {
@@ -44,11 +46,11 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
     private ServletContext buildServletContext(Object serverTransaction) {
         getLogger().debug("entering buildServletContext");
         ServletContext.ServletContextBuilder builder = new ServletContext.ServletContextBuilder();
+        Object headerset = getReflectiveObject(serverTransaction, getHeaders);
+        String hostname = (String) getReflectiveObject(headerset, getHeader, "Host");
         try {
             //getLogger().info("buildServletContext what is an SNI? "+ getReflectiveString(serverTransaction, getSNI, "I DO NOT KNOW"));
             String requestURI = (String)getReflectiveObject(serverTransaction, getRequestURI);
-            Object headerset = getReflectiveObject(serverTransaction, getHeaders);
-            String hostname = (String) getReflectiveObject(headerset, getHeader, "Host");
             String url = String.format("https://%s%s", hostname, requestURI);
             getLogger().debug(String.format("buildServletContext Built Request URL: '%s'", url));
             builder.withURL( url );
@@ -56,6 +58,16 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
             getLogger().info("buildServletContext Bad URL, can't start a servlet! Exception: "+ e.getMessage());
         }
         builder.withRequestMethod( getReflectiveString(serverTransaction,getMethod, "UNKNOWN-METHOD"));
+        builder.withHostValue(hostname);
+
+        Set<Object> headerKeySet = (Set<Object>) getReflectiveObject(headerset, keySet);
+        Map<String,String> appdHeaderMap = new HashMap<>();
+        for( Object keyObject : headerKeySet ){
+            String headerName = (String) getReflectiveObject(keyObject, toString);
+            String value = (String) getReflectiveObject(headerset, getHeader, headerName);
+            appdHeaderMap.put(headerName, value);
+        }
+        builder.withHeaders(appdHeaderMap);
         getLogger().debug("leaving buildServletContext");
         return builder.build();
     }
