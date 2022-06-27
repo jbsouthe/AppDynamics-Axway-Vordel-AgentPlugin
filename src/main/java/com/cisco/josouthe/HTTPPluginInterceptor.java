@@ -15,7 +15,7 @@ import java.util.*;
 public class HTTPPluginInterceptor extends MyBaseInterceptor{
 
     IReflector getRequestURI, getHeaders, getMethod, getSNI; //ServerTransaction
-    IReflector getHeader, keySet; //HeaderSet ala Google
+    IReflector getHeader, getHeaderNames; //HeaderSet ala Google
     IReflector toString;
 
     public HTTPPluginInterceptor() {
@@ -25,7 +25,7 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
         getSNI = makeInvokeInstanceMethodReflector("getSNI"); // returns String
         getHeaders = makeInvokeInstanceMethodReflector("getHeaders"); //returns a com.vordel.mime.HeaderSet
         getHeader = makeInvokeInstanceMethodReflector("getHeader", String.class.getCanonicalName()); //returns a String
-        keySet = makeInvokeInstanceMethodReflector("keySet"); //returns Set<K>
+        getHeaderNames = makeInvokeInstanceMethodReflector("getHeaderNames"); //returns java.util.Iterator<java.lang.String>
         toString = makeInvokeInstanceMethodReflector("toString");
     }
 
@@ -60,10 +60,10 @@ public class HTTPPluginInterceptor extends MyBaseInterceptor{
         builder.withRequestMethod( getReflectiveString(serverTransaction,getMethod, "UNKNOWN-METHOD"));
         builder.withHostValue(hostname);
 
-        Set<Object> headerKeySet = (Set<Object>) getReflectiveObject(headerset, keySet);
+        java.util.Iterator<java.lang.String> headerNamesIt = (java.util.Iterator<java.lang.String>) getReflectiveObject(headerset, getHeaderNames);
         Map<String,String> appdHeaderMap = new HashMap<>();
-        for( Object keyObject : headerKeySet ){
-            String headerName = (String) getReflectiveObject(keyObject, toString);
+        while( headerNamesIt.hasNext() ){
+            String headerName = headerNamesIt.next();
             String value = (String) getReflectiveObject(headerset, getHeader, headerName);
             appdHeaderMap.put(headerName, value);
         }
