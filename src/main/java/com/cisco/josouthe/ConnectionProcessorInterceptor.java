@@ -71,7 +71,8 @@ public class ConnectionProcessorInterceptor extends MyBaseInterceptor{
 
         Object message = params[1];
         Integer responseStatus = (Integer) getReflectiveObject(message, messageGet, "http.response.status");
-        if( responseStatus >= 400 ) {
+        if( responseStatus == null ) getLogger().info(String.format("Response Status is null for BT '%s'?",transaction.getUniqueIdentifier()));
+        if( responseStatus != null && responseStatus >= 400 ) {
             String responseInfo = (String) getReflectiveObject(message, messageGet, "http.response.info");
             String responseFailureMessage = (String) getReflectiveObject(message, messageGet, "filter.connect.to.url.failure.description");
             transaction.markAsError(String.format("HTTP Response: %d '%s' Failure Message: '%s'", responseStatus, responseInfo, responseFailureMessage));
