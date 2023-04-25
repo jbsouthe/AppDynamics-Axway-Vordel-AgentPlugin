@@ -50,9 +50,8 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>agent-api</groupId>
+                                    <groupId>com.appdynamics.agent</groupId>
                                     <artifactId>agent-api</artifactId>
-                                    <version>1.0</version>
                                     <type>jar</type>
                                     <includes>com/appdynamics/agent/api/AppdynamicsAgent.class</includes>
                                     <outputDirectory>${project.build.outputDirectory}</outputDirectory>
