@@ -73,7 +73,7 @@
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                         <manifestEntries>
-                            <Plugin-Classes>com.cisco.josouthe.HTTPPluginInterceptor,com.cisco.josouthe.ConnectionProcessorInterceptor,com.cisco.josouthe.ClientTransactionInterceptor</Plugin-Classes>
+                            <Plugin-Classes>com.cisco.josouthe.HTTPPluginInterceptor,com.cisco.josouthe.ConnectionProcessorInterceptor,com.cisco.josouthe.ClientTransactionInterceptor,com.cisco.josouthe.MessageProcessorInterceptor</Plugin-Classes>
                         </manifestEntries>
                     </archive>
                     <outputDirectory>${basedir}</outputDirectory>
